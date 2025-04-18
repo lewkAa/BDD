@@ -14,8 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ServiceTests {
 
-    public static void  revertTransfer(String depositCardId, String fromCardNumber, int amount) {
-        DashboardPage.cardDeposit(depositCardId).validDeposit(String.valueOf(amount), fromCardNumber);
+    void  revertTransfer(String depositCardId, String fromCardNumber, int amount) {
+        var dbPage = new DashboardPage();
+        dbPage.cardDeposit(depositCardId).validDeposit(String.valueOf(amount), fromCardNumber);
     }
 
 

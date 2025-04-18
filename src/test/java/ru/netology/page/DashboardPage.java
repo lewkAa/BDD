@@ -1,9 +1,8 @@
 package ru.netology.page;
 
-import com.codeborne.selenide.Condition;
+
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import ru.netology.data.DataHelper;
 
 import static com.codeborne.selenide.Condition.attribute;
 import static com.codeborne.selenide.Condition.visible;
@@ -19,7 +18,7 @@ public class DashboardPage {
     private SelenideElement secondCard = $("[data-test-id='0f3f5c2a-249e-4c3d-8287-09f7a039391d']");
     private SelenideElement firstCardDepoButton = firstCard.$("[data-test-id='action-deposit']");
     private SelenideElement secondCardDepoButton = secondCard.$("[data-test-id='action-deposit']");
-    private static ElementsCollection cardsCollection = $$(".list__item div");
+    private ElementsCollection cardsCollection = $$(".list__item div");
     private final String balanceStart = "баланс: ";
     private final String balanceFinish = " р.";
 
@@ -50,7 +49,7 @@ public class DashboardPage {
         return Integer.parseInt(value);
     }
 
-    public static DepositPage cardDeposit(String cardId) {
+    public DepositPage cardDeposit(String cardId) {
         SelenideElement card = cardsCollection.findBy(attribute("data-test-id", cardId));
         card.$("[data-test-id='action-deposit']").click();
         return new DepositPage();
