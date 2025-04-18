@@ -1,77 +1,70 @@
 package ru.netology.test;
 
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.netology.data.DataHelper;
-
 import ru.netology.page.LoginPage;
 
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static ru.netology.page.DashboardPage.CardType.FIRST;
-import static ru.netology.page.DashboardPage.CardType.SECOND;
+
 
 public class ServiceTests {
-
 
     @BeforeEach
     void setup() {
         open("http://localhost:9999");
     }
 
-
     @Test
     @DisplayName("Успешное пополнение первой карты с баланса второй карты")
     void shouldDepositFirstCardFromSecondCard() {
-
+        var depoCard = DataHelper.getCard(0);
+        var withdrCard = DataHelper.getCard(1);
+        var transferAmount = DataHelper.genAmount(withdrCard);
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var depositPage = dashboardPage.cardDeposit(FIRST); //выбор карты FIRST, SECOND
-        int transferAmount = 1000;
+        var depositPage = dashboardPage.cardDeposit(depoCard.getId());
 
         depositPage.validDeposit(String.valueOf(transferAmount),
-                DataHelper.getCardsInfo().getSecondCardNum()); // Нужно указать с какой карты переводить
+                withdrCard.getNumber());
 
-        int firstCardCurrentBalance = dashboardPage.getCardBalance(DataHelper
-                .getCardsInfo().getFirstCardId());
-        int secondCardCurrentBalance = dashboardPage.getCardBalance(DataHelper
-                .getCardsInfo().getSecondCardId());
+        int depoCardCurrentBalance = dashboardPage.getCardBalance(depoCard.getId());
+        int withdrawCardCurrentBalance = dashboardPage.getCardBalance(withdrCard.getId());
 
-        assertEquals(dashboardPage.GetFirstCardStartBalance() + transferAmount, firstCardCurrentBalance);
-        assertEquals(dashboardPage.GetSecondCardStartBalance() - transferAmount, secondCardCurrentBalance);
+        assertEquals(depoCard.getInitialBalance() + transferAmount, depoCardCurrentBalance);
+        assertEquals(withdrCard.getInitialBalance() - transferAmount, withdrawCardCurrentBalance);
 
-        dashboardPage.restoreInitialBalances();
+        dashboardPage.revertTransfer(withdrCard.getId(), depoCard.getNumber(), transferAmount);
     }
 
     @Test
     @DisplayName("Успешное пополнение второй карты с баланса первой карты")
     void shouldDepositSecondCardFromFirstCard() {
+        var depoCard = DataHelper.getCard(1);
+        var withdrCard = DataHelper.getCard(0);
+        var transferAmount = DataHelper.genAmount(withdrCard);
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var depositPage = dashboardPage.cardDeposit(SECOND); //выбор карты для пополнения FIRST, SECOND
-        int transferAmount = 3000;
+        var depositPage = dashboardPage.cardDeposit(depoCard.getId());
 
         depositPage.validDeposit(String.valueOf(transferAmount),
-                DataHelper.getCardsInfo()
-                        .getFirstCardNum());  // Нужно указать с какой карты переводить
+                withdrCard.getNumber());
 
-        int firstCardCurrentBalance = dashboardPage.getCardBalance(DataHelper
-                .getCardsInfo().getFirstCardId());
-        int secondCardCurrentBalance = dashboardPage.getCardBalance(DataHelper
-                .getCardsInfo().getSecondCardId());
+        int depoCardCurrentBalance = dashboardPage.getCardBalance(depoCard.getId());
+        int withdrawCardCurrentBalance = dashboardPage.getCardBalance(withdrCard.getId());
 
-        assertEquals(dashboardPage.GetFirstCardStartBalance() - transferAmount, firstCardCurrentBalance);
-        assertEquals(dashboardPage.GetSecondCardStartBalance() + transferAmount, secondCardCurrentBalance);
+        assertEquals(depoCard.getInitialBalance() + transferAmount, depoCardCurrentBalance);
+        assertEquals(withdrCard.getInitialBalance() - transferAmount, withdrawCardCurrentBalance);
 
-        dashboardPage.restoreInitialBalances();
+        dashboardPage.revertTransfer(withdrCard.getId(), depoCard.getNumber(), transferAmount);
     }
 }
