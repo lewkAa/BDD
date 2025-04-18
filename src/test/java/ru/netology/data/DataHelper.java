@@ -24,20 +24,9 @@ public class DataHelper {
     public static Card getCard(int index) {
         return cards.get(index);
     }
-    public static String getCardId(int index) {
-        return cards.get(index).getId();
-    }
 
-    public static String getCardNumber(int index) {
-        return cards.get(index).getNumber();
-    }
-
-    public static int getCardBalance(int index) {
-        return cards.get(index).getInitialBalance();
-    }
-
-    public static int genAmount(Card card) {
-        return faker.number().numberBetween(1, card.getInitialBalance() + 1);
+    public static int genAmount(Card card, int limit) {
+        return faker.number().numberBetween(1, limit + 1);
     }
 
     @Value
